@@ -1,0 +1,22 @@
+[
+  {
+    "award": "MVP",
+    "seasons": 106,
+    "mean_ndcg_at_3": 0.7643985653367917,
+    "mean_spearman": 0.4099061140128006,
+    "winner_top_1_rate": 0.4481132075471698,
+    "winner_top_3_rate": 0.6981132075471698,
+    "mean_winner_mrr": 0.6059710997474593,
+    "window_years": 5
+  },
+  {
+    "award": "Cy Young",
+    "seasons": 69,
+    "mean_ndcg_at_3": 0.781110230480635,
+    "mean_spearman": 0.2622567171193567,
+    "winner_top_1_rate": 0.5797101449275363,
+    "winner_top_3_rate": 0.8478260869565217,
+    "mean_winner_mrr": 0.727237175063262,
+    "window_years": 5
+  }
+]

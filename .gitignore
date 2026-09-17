@@ -207,6 +207,12 @@ marimo/_lsp/
 __marimo__/
 
 # Additional folders
-graphs/
+# Keep generated experiments out of version control, except the documented
+# season-isolated benchmark artifacts used by the README.
+graphs/*
+!graphs/model_evaluation/
+!graphs/model_evaluation/*.png
+!graphs/model_evaluation/*.csv
+!graphs/model_evaluation/*.json
 seasoncsvs/
 old_versions/
