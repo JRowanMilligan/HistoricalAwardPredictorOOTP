@@ -150,6 +150,43 @@ df["share"] = df.share.fillna(0)
 df["primary_pos"] = df["primary_pos"].fillna("OF")
 
 # ------------------------
+# Drop prior MVP winners in early ineligible-winner eras
+# Chalmers (1911-1914) and League Award (AL 1922-1928, NL 1922-1929)
+# barred previous winners. Those star seasons sit in the batting table
+# with share=0 and teach the ranker that elite stats lose.
+# Keep a season if the player actually won that year (e.g. Johnson 1924).
+# ------------------------
+mvp_winners = pd.read_sql(
+    """
+    SELECT playerID, yearID, lgID
+    FROM AwardsPlayers
+    WHERE awardID = 'Most Valuable Player'
+    """,
+    con,
+)
+
+first_mvp = (
+    mvp_winners.groupby(["playerID", "lgID"], as_index=False)["yearID"].min()
+    .rename(columns={"yearID": "first_mvp_year"})
+)
+winner_keys = mvp_winners.assign(_won_mvp=True)[["playerID", "yearID", "lgID", "_won_mvp"]]
+
+df = df.merge(first_mvp, on=["playerID", "lgID"], how="left")
+df = df.merge(winner_keys, on=["playerID", "yearID", "lgID"], how="left")
+df["_won_mvp"] = df["_won_mvp"].eq(True)
+
+ineligible_era = (
+    ((df["lgID"] == "AL") & df["yearID"].between(1911, 1928))
+    | ((df["lgID"] == "NL") & df["yearID"].between(1911, 1929))
+)
+prior_winner = df["first_mvp_year"].notna() & (df["yearID"] > df["first_mvp_year"])
+drop_mask = ineligible_era & prior_winner & ~df["_won_mvp"]
+
+n_dropped = int(drop_mask.sum())
+df = df.loc[~drop_mask].drop(columns=["first_mvp_year", "_won_mvp"])
+print(f"Dropped {n_dropped} ineligible prior-MVP seasons (AL 1911-1928, NL 1911-1929).")
+
+# ------------------------
 # Lock position categories (CRITICAL)
 # ------------------------
 pos_levels = ["1B","2B","3B","SS","LF","CF","RF","OF","C","P"]
